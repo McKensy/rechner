@@ -59,7 +59,7 @@
         "*": function(a, b) { return a * b; },
         "/": function(a, b) { return a / b; },
         ":": function(a, b) { return a / b; },
-        
+        "expt": function(a, b) { return Math.pow(a, b); }
 
         // ************************************************* //
         // FIXME: Baue weitere mathematische Funktionen ein! //
