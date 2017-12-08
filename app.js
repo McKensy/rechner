@@ -45,9 +45,9 @@
     }
 
     // ================================ //
-    // functions: Eingebaute Funktionen //
+    // environment: Eingebaute Funktionen //
     // ================================ //
-    const functions = {
+    const environment = {
         "+": function(a, b) { return a + b; },
         "-": function(a, b) {
             if (b === undefined) {
@@ -56,6 +56,10 @@
                 return a - b;
             }
         },
+        "*": function(a, b) { return a * b; },
+        "/": function(a, b) { return a / b; },
+        ":": function(a, b) { return a / b; },
+        
 
         // ************************************************* //
         // FIXME: Baue weitere mathematische Funktionen ein! //
@@ -63,7 +67,6 @@
 
     };
 
-    const variables = {};
 
     // ===================================== //
     // evaluate: Eine Rechnung 'x' auswerten //
@@ -72,7 +75,7 @@
         if (typeof x === "number") {   // Eine nackte Zahl
             return x;
         } else if (typeof x === "string") {  // Ein Name einer Variable
-            return variables[x];
+            return environment[x];
         } else if (x instanceof Array) {    // Eine Rechnung
 
             // Das erste Element ist der Name der Operation
@@ -98,24 +101,37 @@
                 var value = evaluate(x[2]);
 
                 // Wert in der Tabelle der Variablen abspeichern
-                variables[var_name] = value;
+                environment[var_name] = value;
 
+
+            } else if (func_name === 'lambda') {
+                return x;
             } else {
                 // ================== //
                 // 'Normale' Funktion //
                 // ================== //
 
                 // Finde die Funktion in der Liste der Funktionen
-                var func = functions[func_name];
+                var func = environment[func_name];
 
                 // Evaluiere die Argumente der Funktion
                 var args = [];
                 for (var i=1; i < x.length; i++) {
                     args.push(evaluate(x[i]))
                 }
-
+                
+                if (func instanceof Array){ //Eigene Funktion
+                    // func[0]=== 'lambda'
+                    var arg_names = func[1];
+                    var body = func[2];
+                    if (arg_names.length === 1){
+                        environment[arg_names[0]] = args[0];
+                    }
+                    return evaluate(body);
+                } else {    // Eingebaude Funktion
                 // Führe die Funktion mit den verbleibenden Argumenten aus
                 return func(...args);
+                }
             }
         } else {
             throw new Error("Kann Rechnung nicht interpretieren: " + x)
@@ -143,8 +159,7 @@
             input: "",
             tokens: [],
             syntax_tree: [],
-            functions: functions,
-            variables: variables,
+            environment: environment,
             result: undefined,
             error: false,
             debug: true
